@@ -14,8 +14,11 @@ const NAV_ITEMS = [
   { id: 'cost', label: 'Cost & Efficiency', icon: '💰', section: 'Agentic AI' },
 ];
 
+const DEFAULT_FILTERS = { age: 'all', income: 'all', gender: 'all' };
+
 export default function App() {
   const [activeView, setActiveView] = useState('overview');
+  const [demoFilters, setDemoFilters] = useState(DEFAULT_FILTERS);
 
   const sections = [...new Set(NAV_ITEMS.map(item => item.section))];
 
@@ -61,11 +64,11 @@ export default function App() {
 
       {/* Main Content */}
       <main className="layout-main">
-        {activeView === 'overview' && <ExecutiveOverview />}
-        {activeView === 'product' && <ProductAnalytics />}
-        {activeView === 'agents' && <AgentPerformance />}
-        {activeView === 'safety' && <SafetyGovernance />}
-        {activeView === 'cost' && <CostEfficiency />}
+        {activeView === 'overview' && <ExecutiveOverview filters={demoFilters} onFiltersChange={setDemoFilters} />}
+        {activeView === 'product' && <ProductAnalytics filters={demoFilters} onFiltersChange={setDemoFilters} />}
+        {activeView === 'agents' && <AgentPerformance filters={demoFilters} />}
+        {activeView === 'safety' && <SafetyGovernance filters={demoFilters} />}
+        {activeView === 'cost' && <CostEfficiency filters={demoFilters} />}
       </main>
     </div>
   );

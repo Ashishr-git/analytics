@@ -219,3 +219,184 @@
   display: inline-flex;
   align-items: center;
 }
+
+/* --- Metric Description Tooltip --- */
+.metric-tooltip-trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: help;
+}
+
+.metric-tooltip-icon {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.metric-tooltip-trigger:hover .metric-tooltip-icon {
+  opacity: 0.7;
+}
+
+.metric-tooltip-popover {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  padding: 14px 16px;
+  background: rgba(10, 10, 35, 0.97);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-highlight);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 1px rgba(0, 240, 255, 0.1);
+  z-index: 200;
+  pointer-events: none;
+  animation: fadeIn 0.15s ease;
+  white-space: normal;
+  text-align: left;
+}
+
+.metric-tooltip-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  margin-bottom: 6px;
+}
+
+.metric-tooltip-desc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.metric-tooltip-formula {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.metric-tooltip-target {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.metric-tooltip-target-value {
+  color: var(--accent-lime);
+  font-weight: 600;
+}
+
+.metric-tooltip-label-small {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.metric-tooltip-arrow {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: rgba(10, 10, 35, 0.97);
+  border-right: 1px solid var(--border-highlight);
+  border-bottom: 1px solid var(--border-highlight);
+}
+
+/* --- Demographic Filter --- */
+.demo-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.demo-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.demo-filter-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.demo-filter-pills {
+  display: flex;
+  gap: 4px;
+}
+
+.demo-filter-pill {
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.demo-filter-pill:hover {
+  border-color: var(--border-highlight);
+  color: var(--text-primary);
+}
+
+.demo-filter-pill--active {
+  background: rgba(0, 240, 255, 0.1);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+.demo-filter-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border-subtle);
+}
+
+.demo-filter-active-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  font-size: 0.72rem;
+  color: var(--accent-cyan);
+  font-weight: 500;
+}
+
+.demo-filter-system-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(255, 217, 61, 0.06);
+  border: 1px solid rgba(255, 217, 61, 0.15);
+  border-radius: var(--radius-md);
+  font-size: 0.78rem;
+  color: var(--accent-yellow);
+  margin-bottom: var(--spacing-lg);
+}

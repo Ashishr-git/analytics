@@ -1,8 +1,12 @@
 import React from 'react';
 import { AnimatedNumber, Sparkline, DonutChart, LineChart, GaugeChart } from '../components/charts';
+import MetricTooltip from '../components/MetricTooltip';
+import { isFilterActive } from '../data/demographicData';
 import { safetyMetrics } from '../data/safetyMetrics';
 
-export default function SafetyGovernance() {
+export default function SafetyGovernance({ filters }) {
+  const filtered = isFilterActive(filters);
+
   return (
     <div>
       <div className="page-header">
@@ -15,19 +19,26 @@ export default function SafetyGovernance() {
         </span>
       </div>
 
+      {filtered && (
+        <div className="demo-filter-system-note">
+          <span style={{ fontSize: '1.2rem' }}>ℹ️</span>
+          <span><strong>System-level metrics:</strong> Safety & Governance metrics do not vary by demographic slice. Displaying overall system data.</span>
+        </div>
+      )}
+
       {/* KPIs */}
       <div className="kpi-grid">
         {[
-          { label: 'Guardrail Trigger Rate', value: safetyMetrics.kpis.guardrailTriggerRate, suffix: '%', icon: '🛡️', color: safetyMetrics.kpis.guardrailTriggerRate < 2 ? '#6bcb77' : '#ffd93d', bg: 'rgba(107,203,119,0.1)', spark: safetyMetrics.monthly.map(m => m.guardrailTriggerRate) },
-          { label: 'PII Detection Rate', value: safetyMetrics.kpis.piiDetectionRate, suffix: '%', icon: '🔒', color: '#00f0ff', bg: 'rgba(0,240,255,0.1)', spark: safetyMetrics.monthly.map(m => m.piiDetectionRate) },
-          { label: 'Compliance Score', value: safetyMetrics.kpis.complianceScore, suffix: '%', icon: '✅', color: '#ccff00', bg: 'rgba(204,255,0,0.1)', spark: safetyMetrics.monthly.map(m => m.complianceScore) },
-          { label: 'PII Leakage Incidents', value: safetyMetrics.kpis.piiLeakageIncidents, suffix: '', icon: '🚨', color: safetyMetrics.kpis.piiLeakageIncidents === 0 ? '#6bcb77' : '#ff4757', bg: 'rgba(107,203,119,0.1)' },
+          { label: 'Guardrail Trigger Rate', metricKey: 'guardrailTriggerRate', value: safetyMetrics.kpis.guardrailTriggerRate, suffix: '%', icon: '🛡️', color: safetyMetrics.kpis.guardrailTriggerRate < 2 ? '#6bcb77' : '#ffd93d', bg: 'rgba(107,203,119,0.1)', spark: safetyMetrics.monthly.map(m => m.guardrailTriggerRate) },
+          { label: 'PII Detection Rate', metricKey: 'piiDetectionRate', value: safetyMetrics.kpis.piiDetectionRate, suffix: '%', icon: '🔒', color: '#00f0ff', bg: 'rgba(0,240,255,0.1)', spark: safetyMetrics.monthly.map(m => m.piiDetectionRate) },
+          { label: 'Compliance Score', metricKey: 'complianceScore', value: safetyMetrics.kpis.complianceScore, suffix: '%', icon: '✅', color: '#ccff00', bg: 'rgba(204,255,0,0.1)', spark: safetyMetrics.monthly.map(m => m.complianceScore) },
+          { label: 'PII Leakage Incidents', metricKey: 'piiLeakageIncidents', value: safetyMetrics.kpis.piiLeakageIncidents, suffix: '', icon: '🚨', color: safetyMetrics.kpis.piiLeakageIncidents === 0 ? '#6bcb77' : '#ff4757', bg: 'rgba(107,203,119,0.1)' },
         ].map((kpi, i) => (
           <div key={i} className={`kpi-card glass-panel animate-in animate-in-delay-${i + 1}`}>
             <div className="kpi-card-header">
               <div className="kpi-icon" style={{ background: kpi.bg }}>{kpi.icon}</div>
             </div>
-            <span className="kpi-label">{kpi.label}</span>
+            <span className="kpi-label"><MetricTooltip metricKey={kpi.metricKey}>{kpi.label}</MetricTooltip></span>
             <span className="kpi-value" style={{ color: kpi.color }}>
               <AnimatedNumber value={kpi.value} suffix={kpi.suffix} decimals={kpi.suffix === '%' ? 1 : 0} />
             </span>
@@ -97,13 +108,13 @@ export default function SafetyGovernance() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--accent-yellow)' }}>{safetyMetrics.kpis.jailbreakAttempts}</div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Jailbreak Attempts (30d)</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}><MetricTooltip metricKey="jailbreakAttempts">Jailbreak Attempts (30d)</MetricTooltip></div>
             </div>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '2rem', fontWeight: 800, color: safetyMetrics.kpis.toxicContentRate < 0.1 ? 'var(--accent-green)' : 'var(--accent-red)' }}>
                 {safetyMetrics.kpis.toxicContentRate}%
               </div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Toxic Content Rate</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}><MetricTooltip metricKey="toxicContentRate">Toxic Content Rate</MetricTooltip></div>
             </div>
           </div>
         </div>

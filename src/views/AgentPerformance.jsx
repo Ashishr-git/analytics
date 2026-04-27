@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { AnimatedNumber, Sparkline, GaugeChart, DonutChart, LineChart, BarChart, HorizontalBarChart } from '../components/charts';
+import MetricTooltip from '../components/MetricTooltip';
+import { isFilterActive } from '../data/demographicData';
 import { systemMetrics, ragMetrics, transactionMetrics, chitchatMetrics, coordinationMetrics } from '../data/agentMetrics';
 
-export default function AgentPerformance() {
+export default function AgentPerformance({ filters }) {
   const [activeTab, setActiveTab] = useState('overview');
+  const filtered = isFilterActive(filters);
   const tabs = [
     { id: 'overview', label: '📊 Overview' },
     { id: 'rag', label: '📚 RAG Agent' },
@@ -27,6 +30,13 @@ export default function AgentPerformance() {
         </div>
       </div>
 
+      {filtered && (
+        <div className="demo-filter-system-note">
+          <span style={{ fontSize: '1.2rem' }}>ℹ️</span>
+          <span><strong>System-level metrics:</strong> Agent performance metrics do not vary by demographic slice. Displaying overall system data.</span>
+        </div>
+      )}
+
       {activeTab === 'overview' && <OverviewTab />}
       {activeTab === 'rag' && <RagTab />}
       {activeTab === 'transaction' && <TransactionTab />}
@@ -41,16 +51,16 @@ function OverviewTab() {
     <>
       <div className="kpi-grid">
         {[
-          { label: 'Task Completion Rate', value: systemMetrics.kpis.taskCompletion, suffix: '%', icon: '✅', color: '#00f0ff', bg: 'rgba(0,240,255,0.1)', spark: systemMetrics.monthly.map(m => m.taskCompletion) },
-          { label: 'User Satisfaction', value: systemMetrics.kpis.satisfaction, suffix: '%', icon: '😊', color: '#ccff00', bg: 'rgba(204,255,0,0.1)', spark: systemMetrics.monthly.map(m => m.satisfaction) },
-          { label: 'Latency P50', value: systemMetrics.kpis.latencyP50, suffix: 'ms', icon: '⚡', color: '#bf5af2', bg: 'rgba(191,90,242,0.1)', spark: systemMetrics.monthly.map(m => m.latencyP50) },
-          { label: 'Error Rate', value: systemMetrics.kpis.errorRate, suffix: '%', icon: '🐛', color: systemMetrics.kpis.errorRate < 1 ? '#6bcb77' : '#ff4757', bg: 'rgba(107,203,119,0.1)', spark: systemMetrics.monthly.map(m => m.errorRate) },
+          { label: 'Task Completion Rate', metricKey: 'taskCompletion', value: systemMetrics.kpis.taskCompletion, suffix: '%', icon: '✅', color: '#00f0ff', bg: 'rgba(0,240,255,0.1)', spark: systemMetrics.monthly.map(m => m.taskCompletion) },
+          { label: 'User Satisfaction', metricKey: 'satisfaction', value: systemMetrics.kpis.satisfaction, suffix: '%', icon: '😊', color: '#ccff00', bg: 'rgba(204,255,0,0.1)', spark: systemMetrics.monthly.map(m => m.satisfaction) },
+          { label: 'Latency P50', metricKey: 'latencyP50', value: systemMetrics.kpis.latencyP50, suffix: 'ms', icon: '⚡', color: '#bf5af2', bg: 'rgba(191,90,242,0.1)', spark: systemMetrics.monthly.map(m => m.latencyP50) },
+          { label: 'Error Rate', metricKey: 'errorRate', value: systemMetrics.kpis.errorRate, suffix: '%', icon: '🐛', color: systemMetrics.kpis.errorRate < 1 ? '#6bcb77' : '#ff4757', bg: 'rgba(107,203,119,0.1)', spark: systemMetrics.monthly.map(m => m.errorRate) },
         ].map((kpi, i) => (
           <div key={i} className={`kpi-card glass-panel animate-in animate-in-delay-${i + 1}`}>
             <div className="kpi-card-header">
               <div className="kpi-icon" style={{ background: kpi.bg }}>{kpi.icon}</div>
             </div>
-            <span className="kpi-label">{kpi.label}</span>
+            <span className="kpi-label"><MetricTooltip metricKey={kpi.metricKey}>{kpi.label}</MetricTooltip></span>
             <span className="kpi-value" style={{ color: kpi.color }}>
               <AnimatedNumber value={kpi.value} suffix={kpi.suffix} decimals={kpi.suffix === 'ms' ? 0 : 1} />
             </span>
@@ -170,14 +180,14 @@ function RagTab() {
     <>
       <div className="kpi-grid">
         {[
-          { label: 'Faithfulness', value: ragMetrics.kpis.faithfulness * 100, suffix: '%', color: '#6bcb77', bg: 'rgba(107,203,119,0.1)', icon: '🎯' },
-          { label: 'Hallucination Rate', value: ragMetrics.kpis.hallucinationRate, suffix: '%', color: ragMetrics.kpis.hallucinationRate < 5 ? '#6bcb77' : '#ff4757', bg: 'rgba(255,71,87,0.1)', icon: '🔍' },
-          { label: 'KB Coverage', value: ragMetrics.kpis.kbCoverage, suffix: '%', color: '#00f0ff', bg: 'rgba(0,240,255,0.1)', icon: '📖' },
-          { label: 'Satisfaction', value: ragMetrics.kpis.satisfaction, suffix: '%', color: '#ccff00', bg: 'rgba(204,255,0,0.1)', icon: '👍' },
+          { label: 'Faithfulness', metricKey: 'faithfulness', value: ragMetrics.kpis.faithfulness * 100, suffix: '%', color: '#6bcb77', bg: 'rgba(107,203,119,0.1)', icon: '🎯' },
+          { label: 'Hallucination Rate', metricKey: 'hallucinationRate', value: ragMetrics.kpis.hallucinationRate, suffix: '%', color: ragMetrics.kpis.hallucinationRate < 5 ? '#6bcb77' : '#ff4757', bg: 'rgba(255,71,87,0.1)', icon: '🔍' },
+          { label: 'KB Coverage', metricKey: 'kbCoverage', value: ragMetrics.kpis.kbCoverage, suffix: '%', color: '#00f0ff', bg: 'rgba(0,240,255,0.1)', icon: '📖' },
+          { label: 'Satisfaction', metricKey: 'satisfaction', value: ragMetrics.kpis.satisfaction, suffix: '%', color: '#ccff00', bg: 'rgba(204,255,0,0.1)', icon: '👍' },
         ].map((kpi, i) => (
           <div key={i} className={`kpi-card glass-panel animate-in animate-in-delay-${i + 1}`}>
             <div className="kpi-card-header"><div className="kpi-icon" style={{ background: kpi.bg }}>{kpi.icon}</div></div>
-            <span className="kpi-label">{kpi.label}</span>
+            <span className="kpi-label"><MetricTooltip metricKey={kpi.metricKey}>{kpi.label}</MetricTooltip></span>
             <span className="kpi-value" style={{ color: kpi.color }}><AnimatedNumber value={kpi.value} suffix={kpi.suffix} decimals={1} /></span>
           </div>
         ))}
@@ -235,11 +245,11 @@ function RagTab() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginTop: '12px' }}>
             <div style={{ textAlign: 'center', padding: '8px', background: 'rgba(255,255,255,0.02)', borderRadius: 'var(--radius-sm)' }}>
               <div style={{ fontSize: '1rem', fontWeight: 700 }}>{ragMetrics.kpis.citationAccuracy}%</div>
-              <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Citation Accuracy</div>
+              <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}><MetricTooltip metricKey="citationAccuracy">Citation Accuracy</MetricTooltip></div>
             </div>
             <div style={{ textAlign: 'center', padding: '8px', background: 'rgba(255,255,255,0.02)', borderRadius: 'var(--radius-sm)' }}>
               <div style={{ fontSize: '1rem', fontWeight: 700 }}>{ragMetrics.kpis.avgResponseLength}</div>
-              <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Avg Words</div>
+              <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}><MetricTooltip metricKey="avgResponseLength">Avg Words</MetricTooltip></div>
             </div>
             <div style={{ textAlign: 'center', padding: '8px', background: 'rgba(255,255,255,0.02)', borderRadius: 'var(--radius-sm)' }}>
               <div style={{ fontSize: '1rem', fontWeight: 700 }}>{ragMetrics.latencyBreakdown.retrieval.p50}ms</div>
@@ -257,14 +267,14 @@ function TransactionTab() {
     <>
       <div className="kpi-grid">
         {[
-          { label: 'Query Understanding', value: transactionMetrics.kpis.queryUnderstanding, suffix: '%', color: '#00f0ff', bg: 'rgba(0,240,255,0.1)', icon: '🧠' },
-          { label: 'Data Retrieval', value: transactionMetrics.kpis.dataRetrieval, suffix: '%', color: '#ccff00', bg: 'rgba(204,255,0,0.1)', icon: '📋' },
-          { label: 'Tool Call Success', value: transactionMetrics.kpis.toolCallSuccess, suffix: '%', color: '#6bcb77', bg: 'rgba(107,203,119,0.1)', icon: '🔧' },
-          { label: 'Satisfaction', value: transactionMetrics.kpis.satisfaction, suffix: '%', color: '#bf5af2', bg: 'rgba(191,90,242,0.1)', icon: '👍' },
+          { label: 'Query Understanding', metricKey: 'queryUnderstanding', value: transactionMetrics.kpis.queryUnderstanding, suffix: '%', color: '#00f0ff', bg: 'rgba(0,240,255,0.1)', icon: '🧠' },
+          { label: 'Data Retrieval', metricKey: 'dataRetrieval', value: transactionMetrics.kpis.dataRetrieval, suffix: '%', color: '#ccff00', bg: 'rgba(204,255,0,0.1)', icon: '📋' },
+          { label: 'Tool Call Success', metricKey: 'toolCallSuccess', value: transactionMetrics.kpis.toolCallSuccess, suffix: '%', color: '#6bcb77', bg: 'rgba(107,203,119,0.1)', icon: '🔧' },
+          { label: 'Satisfaction', metricKey: 'satisfaction', value: transactionMetrics.kpis.satisfaction, suffix: '%', color: '#bf5af2', bg: 'rgba(191,90,242,0.1)', icon: '👍' },
         ].map((kpi, i) => (
           <div key={i} className={`kpi-card glass-panel animate-in animate-in-delay-${i + 1}`}>
             <div className="kpi-card-header"><div className="kpi-icon" style={{ background: kpi.bg }}>{kpi.icon}</div></div>
-            <span className="kpi-label">{kpi.label}</span>
+            <span className="kpi-label"><MetricTooltip metricKey={kpi.metricKey}>{kpi.label}</MetricTooltip></span>
             <span className="kpi-value" style={{ color: kpi.color }}><AnimatedNumber value={kpi.value} suffix={kpi.suffix} decimals={1} /></span>
           </div>
         ))}
@@ -307,14 +317,14 @@ function ChitchatTab() {
     <>
       <div className="kpi-grid">
         {[
-          { label: 'Coherence', value: chitchatMetrics.kpis.coherence * 100, suffix: '%', color: '#00f0ff', bg: 'rgba(0,240,255,0.1)', icon: '🗣️' },
-          { label: 'Navigation Success', value: chitchatMetrics.kpis.navigationSuccess, suffix: '%', color: '#ccff00', bg: 'rgba(204,255,0,0.1)', icon: '🧭' },
-          { label: 'Containment', value: chitchatMetrics.kpis.containmentRate, suffix: '%', color: '#6bcb77', bg: 'rgba(107,203,119,0.1)', icon: '📦' },
-          { label: 'Satisfaction', value: chitchatMetrics.kpis.satisfaction, suffix: '%', color: '#bf5af2', bg: 'rgba(191,90,242,0.1)', icon: '😊' },
+          { label: 'Coherence', metricKey: 'coherence', value: chitchatMetrics.kpis.coherence * 100, suffix: '%', color: '#00f0ff', bg: 'rgba(0,240,255,0.1)', icon: '🗣️' },
+          { label: 'Navigation Success', metricKey: 'navigationSuccess', value: chitchatMetrics.kpis.navigationSuccess, suffix: '%', color: '#ccff00', bg: 'rgba(204,255,0,0.1)', icon: '🧭' },
+          { label: 'Containment', metricKey: 'containmentRate', value: chitchatMetrics.kpis.containmentRate, suffix: '%', color: '#6bcb77', bg: 'rgba(107,203,119,0.1)', icon: '📦' },
+          { label: 'Satisfaction', metricKey: 'satisfaction', value: chitchatMetrics.kpis.satisfaction, suffix: '%', color: '#bf5af2', bg: 'rgba(191,90,242,0.1)', icon: '😊' },
         ].map((kpi, i) => (
           <div key={i} className={`kpi-card glass-panel animate-in animate-in-delay-${i + 1}`}>
             <div className="kpi-card-header"><div className="kpi-icon" style={{ background: kpi.bg }}>{kpi.icon}</div></div>
-            <span className="kpi-label">{kpi.label}</span>
+            <span className="kpi-label"><MetricTooltip metricKey={kpi.metricKey}>{kpi.label}</MetricTooltip></span>
             <span className="kpi-value" style={{ color: kpi.color }}><AnimatedNumber value={kpi.value} suffix={kpi.suffix} decimals={1} /></span>
           </div>
         ))}
@@ -355,14 +365,14 @@ function CoordinationTab() {
     <>
       <div className="kpi-grid">
         {[
-          { label: 'Routing Accuracy', value: coordinationMetrics.kpis.routingAccuracy, suffix: '%', color: '#00f0ff', bg: 'rgba(0,240,255,0.1)', icon: '🎯' },
-          { label: 'Handoff Success', value: coordinationMetrics.kpis.handoffSuccess, suffix: '%', color: '#ccff00', bg: 'rgba(204,255,0,0.1)', icon: '🤝' },
-          { label: 'Context Preserved', value: coordinationMetrics.kpis.contextPreservation, suffix: '%', color: '#bf5af2', bg: 'rgba(191,90,242,0.1)', icon: '🧠' },
-          { label: 'Loop Detections', value: coordinationMetrics.kpis.loopDetections, suffix: '', color: '#6bcb77', bg: 'rgba(107,203,119,0.1)', icon: '🔄' },
+          { label: 'Routing Accuracy', metricKey: 'routingAccuracy', value: coordinationMetrics.kpis.routingAccuracy, suffix: '%', color: '#00f0ff', bg: 'rgba(0,240,255,0.1)', icon: '🎯' },
+          { label: 'Handoff Success', metricKey: 'handoffSuccess', value: coordinationMetrics.kpis.handoffSuccess, suffix: '%', color: '#ccff00', bg: 'rgba(204,255,0,0.1)', icon: '🤝' },
+          { label: 'Context Preserved', metricKey: 'contextPreservation', value: coordinationMetrics.kpis.contextPreservation, suffix: '%', color: '#bf5af2', bg: 'rgba(191,90,242,0.1)', icon: '🧠' },
+          { label: 'Loop Detections', metricKey: 'loopDetections', value: coordinationMetrics.kpis.loopDetections, suffix: '', color: '#6bcb77', bg: 'rgba(107,203,119,0.1)', icon: '🔄' },
         ].map((kpi, i) => (
           <div key={i} className={`kpi-card glass-panel animate-in animate-in-delay-${i + 1}`}>
             <div className="kpi-card-header"><div className="kpi-icon" style={{ background: kpi.bg }}>{kpi.icon}</div></div>
-            <span className="kpi-label">{kpi.label}</span>
+            <span className="kpi-label"><MetricTooltip metricKey={kpi.metricKey}>{kpi.label}</MetricTooltip></span>
             <span className="kpi-value" style={{ color: kpi.color }}><AnimatedNumber value={kpi.value} suffix={kpi.suffix} decimals={kpi.suffix === '%' ? 1 : 0} /></span>
           </div>
         ))}

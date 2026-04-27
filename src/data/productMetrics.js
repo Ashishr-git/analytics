@@ -7,13 +7,21 @@ const MONTHS_SHORT = ['M','J','J','A','S','O','N','D','J','F','M','A'];
 
 // --- A1. Feature Discovery & Adoption ---
 export const featureDiscovery = {
-  monthly: MONTHS.map((month, i) => ({
-    month,
-    impressions: Math.round(45000 + i * 3200 + Math.random() * 2000),
-    clicks: Math.round(7500 + i * 800 + Math.random() * 500),
-    enrollmentStarts: Math.round(3200 + i * 400 + Math.random() * 300),
-    enrollmentCompletes: Math.round(2400 + i * 350 + Math.random() * 200),
-  })),
+  monthly: MONTHS.map((month, i) => {
+    const impressions = Math.round(45000 + i * 3200 + Math.random() * 2000);
+    const clicks = Math.round(7500 + i * 800 + Math.random() * 500);
+    const enrollmentStarts = Math.round(3200 + i * 400 + Math.random() * 300);
+    const enrollmentCompletes = Math.round(2400 + i * 350 + Math.random() * 200);
+    return {
+      month,
+      impressions,
+      clicks,
+      enrollmentStarts,
+      enrollmentCompletes,
+      ctr: parseFloat((clicks / impressions * 100).toFixed(1)),
+      adoptionRate: parseFloat((enrollmentCompletes / impressions * 100).toFixed(1)),
+    };
+  }),
   channelBreakdown: [
     { channel: 'In-App Banner', impressions: 85000, clicks: 14200, ctr: 16.7, enrollments: 5800, color: '#00f0ff' },
     { channel: 'Push Notification', impressions: 62000, clicks: 11160, ctr: 18.0, enrollments: 4900, color: '#ccff00' },
@@ -43,6 +51,15 @@ export const onboardingFunnel = {
     { name: 'Accepted Plan', count: 5040, pct: 5.9 },
     { name: 'Active User', count: 4200, pct: 4.9 },
   ],
+  monthly: MONTHS.map((month, i) => ({
+    month,
+    completionRate: parseFloat((68 + i * 0.7 + Math.random() * 1.5).toFixed(1)),
+    accountLinkSuccess: parseFloat((82 + i * 0.5 + Math.random() * 1).toFixed(1)),
+    timeToComplete: parseFloat((3.8 - i * 0.08 + Math.random() * 0.2).toFixed(1)),
+    planAcceptanceRate: parseFloat((70 + i * 0.9 + Math.random() * 1.5).toFixed(1)),
+    ttfv: parseFloat((5.5 - i * 0.1 + Math.random() * 0.3).toFixed(1)),
+    retryRate: parseFloat((12 - i * 0.3 + Math.random() * 0.5).toFixed(1)),
+  })),
   kpis: {
     onboardingStartRate: 66.0,
     completionRate: 75.4,
@@ -139,6 +156,14 @@ export const financialHealth = {
     green: parseFloat((48 + i * 1.2 + Math.random() * 2).toFixed(1)),
     yellow: parseFloat((30 - i * 0.4 + Math.random() * 1).toFixed(1)),
     red: parseFloat((22 - i * 0.8 + Math.random() * 1).toFixed(1)),
+  })),
+  outcomesTrend: MONTHS.map((month, i) => ({
+    month,
+    budgetAdherence: parseFloat((38 + i * 1.3 + Math.random() * 2).toFixed(1)),
+    overdraftPrevention: parseFloat((58 + i * 1.5 + Math.random() * 2).toFixed(1)),
+    paycheckSurvival: parseFloat((68 + i * 1.4 + Math.random() * 2).toFixed(1)),
+    savingsImprovement: parseFloat((1.2 + i * 0.18 + Math.random() * 0.3).toFixed(1)),
+    financialConfidence: parseFloat((5.2 + i * 0.14 + Math.random() * 0.2).toFixed(1)),
   })),
   kpis: {
     greenZonePct: 61.5,

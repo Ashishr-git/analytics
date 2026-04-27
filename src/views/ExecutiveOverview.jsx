@@ -1,28 +1,34 @@
 import React from 'react';
 import { AnimatedNumber, Sparkline, GaugeChart, DonutChart, LineChart } from '../components/charts';
+import MetricTooltip from '../components/MetricTooltip';
+import DemographicFilter from '../components/DemographicFilter';
+import { applyFilter, isFilterActive } from '../data/demographicData';
 import { engagement, retention, financialHealth, platformImpact, featureDiscovery } from '../data/productMetrics';
 import { systemMetrics, ragMetrics, costMetrics } from '../data/agentMetrics';
 import { safetyMetrics } from '../data/safetyMetrics';
 
-const NORTH_STAR_KPIS = [
-  { label: 'Monthly Active Users', value: engagement.kpis.currentMAU, prefix: '', suffix: '', decimals: 0, change: '+12.4%', up: true, icon: '👥', sparkData: engagement.monthly.map(m => m.mau), color: '#00f0ff', bgColor: 'rgba(0,240,255,0.1)' },
-  { label: 'Feature Adoption Rate', value: featureDiscovery.kpis.overallAdoption, prefix: '', suffix: '%', decimals: 1, change: '+3.2%', up: true, icon: '🚀', sparkData: engagement.monthly.map(m => m.stickiness), color: '#ccff00', bgColor: 'rgba(204,255,0,0.1)' },
-  { label: 'Green Zone Users', value: financialHealth.kpis.greenZonePct, prefix: '', suffix: '%', decimals: 1, change: '+5.8%', up: true, icon: '💚', sparkData: financialHealth.zoneHistory.map(m => m.green), color: '#6bcb77', bgColor: 'rgba(107,203,119,0.1)' },
-  { label: 'Agent Satisfaction', value: systemMetrics.kpis.satisfaction, prefix: '', suffix: '%', decimals: 1, change: '+2.1%', up: true, icon: '🤖', sparkData: systemMetrics.monthly.map(m => m.satisfaction), color: '#bf5af2', bgColor: 'rgba(191,90,242,0.1)' },
-];
+export default function ExecutiveOverview({ filters, onFiltersChange }) {
+  const f = filters;
+  const filtered = isFilterActive(f);
 
-const HEALTH_CHECKS = [
-  { label: 'Agent Error Rate', value: `${systemMetrics.kpis.errorRate}%`, target: '< 1%', status: systemMetrics.kpis.errorRate < 1 ? 'green' : 'yellow' },
-  { label: 'PII Leakage', value: `${safetyMetrics.kpis.piiLeakageIncidents}`, target: '0', status: safetyMetrics.kpis.piiLeakageIncidents === 0 ? 'green' : 'red' },
-  { label: 'Hallucination Rate', value: `${ragMetrics.kpis.hallucinationRate}%`, target: '< 5%', status: ragMetrics.kpis.hallucinationRate < 5 ? 'green' : 'yellow' },
-  { label: 'Onboarding Completion', value: `${75.4}%`, target: '> 70%', status: 75.4 > 70 ? 'green' : 'yellow' },
-  { label: 'Response Latency P95', value: `${systemMetrics.kpis.latencyP95}ms`, target: '< 3000ms', status: systemMetrics.kpis.latencyP95 < 3000 ? 'green' : 'yellow' },
-  { label: 'Routing Accuracy', value: '93.2%', target: '> 92%', status: 'green' },
-  { label: 'Churn Rate', value: `${retention.kpis.currentChurnRate}%`, target: '< 8%', status: retention.kpis.currentChurnRate < 8 ? 'green' : 'yellow' },
-  { label: 'Budget Utilization', value: `${costMetrics.kpis.budgetUtilization}%`, target: '< 90%', status: costMetrics.kpis.budgetUtilization < 90 ? 'green' : 'yellow' },
-];
+  const NORTH_STAR_KPIS = [
+    { label: 'Monthly Active Users', metricKey: 'currentMAU', value: applyFilter(engagement.kpis.currentMAU, 'mau', f), suffix: '', decimals: 0, change: '+12.4%', up: true, icon: '👥', sparkData: engagement.monthly.map(m => applyFilter(m.mau, 'mau', f)), color: '#00f0ff', bgColor: 'rgba(0,240,255,0.1)' },
+    { label: 'Feature Adoption Rate', metricKey: 'overallAdoption', value: applyFilter(featureDiscovery.kpis.overallAdoption, 'adoptionRate', f), suffix: '%', decimals: 1, change: '+3.2%', up: true, icon: '🚀', sparkData: engagement.monthly.map(m => applyFilter(m.stickiness, 'stickiness', f)), color: '#ccff00', bgColor: 'rgba(204,255,0,0.1)' },
+    { label: 'Green Zone Users', metricKey: 'greenZonePct', value: applyFilter(financialHealth.kpis.greenZonePct, 'greenZone', f), suffix: '%', decimals: 1, change: '+5.8%', up: true, icon: '💚', sparkData: financialHealth.zoneHistory.map(m => applyFilter(m.green, 'greenZone', f)), color: '#6bcb77', bgColor: 'rgba(107,203,119,0.1)' },
+    { label: 'Agent Satisfaction', metricKey: 'satisfaction', value: systemMetrics.kpis.satisfaction, suffix: '%', decimals: 1, change: '+2.1%', up: true, icon: '🤖', sparkData: systemMetrics.monthly.map(m => m.satisfaction), color: '#bf5af2', bgColor: 'rgba(191,90,242,0.1)' },
+  ];
 
-export default function ExecutiveOverview() {
+  const HEALTH_CHECKS = [
+    { label: 'Agent Error Rate', metricKey: 'errorRate', value: `${systemMetrics.kpis.errorRate}%`, target: '< 1%', status: systemMetrics.kpis.errorRate < 1 ? 'green' : 'yellow' },
+    { label: 'PII Leakage', metricKey: 'piiLeakageIncidents', value: `${safetyMetrics.kpis.piiLeakageIncidents}`, target: '0', status: safetyMetrics.kpis.piiLeakageIncidents === 0 ? 'green' : 'red' },
+    { label: 'Hallucination Rate', metricKey: 'hallucinationRate', value: `${ragMetrics.kpis.hallucinationRate}%`, target: '< 5%', status: ragMetrics.kpis.hallucinationRate < 5 ? 'green' : 'yellow' },
+    { label: 'Onboarding Completion', metricKey: 'completionRate', value: `${applyFilter(75.4, 'completionRate', f)}%`, target: '> 70%', status: 'green' },
+    { label: 'Response Latency P95', metricKey: 'latencyP95', value: `${systemMetrics.kpis.latencyP95}ms`, target: '< 3000ms', status: systemMetrics.kpis.latencyP95 < 3000 ? 'green' : 'yellow' },
+    { label: 'Routing Accuracy', metricKey: 'routingAccuracy', value: '93.2%', target: '> 92%', status: 'green' },
+    { label: 'Churn Rate', metricKey: 'currentChurnRate', value: `${applyFilter(retention.kpis.currentChurnRate, 'churnRate', f)}%`, target: '< 8%', status: retention.kpis.currentChurnRate < 8 ? 'green' : 'yellow' },
+    { label: 'Budget Utilization', metricKey: 'budgetUtilization', value: `${costMetrics.kpis.budgetUtilization}%`, target: '< 90%', status: costMetrics.kpis.budgetUtilization < 90 ? 'green' : 'yellow' },
+  ];
+
   return (
     <div>
       <div className="page-header">
@@ -31,6 +37,8 @@ export default function ExecutiveOverview() {
           <p className="page-subtitle">North star metrics and system health at a glance</p>
         </div>
       </div>
+
+      <DemographicFilter filters={filters} onChange={onFiltersChange} />
 
       {/* North Star KPIs */}
       <div className="kpi-grid">
@@ -42,9 +50,9 @@ export default function ExecutiveOverview() {
                 {kpi.up ? '↑' : '↓'} {kpi.change}
               </span>
             </div>
-            <span className="kpi-label">{kpi.label}</span>
+            <span className="kpi-label"><MetricTooltip metricKey={kpi.metricKey}>{kpi.label}</MetricTooltip></span>
             <span className="kpi-value">
-              <AnimatedNumber value={kpi.value} prefix={kpi.prefix} suffix={kpi.suffix} decimals={kpi.decimals} />
+              <AnimatedNumber value={kpi.value} suffix={kpi.suffix} decimals={kpi.decimals} />
             </span>
             <div className="kpi-sparkline">
               <Sparkline data={kpi.sparkData} color={kpi.color} height={32} width={100} />
@@ -73,7 +81,9 @@ export default function ExecutiveOverview() {
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span className={`status-dot status-dot--${check.status}`} />
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{check.label}</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                    <MetricTooltip metricKey={check.metricKey}>{check.label}</MetricTooltip>
+                  </span>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: '0.85rem', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{check.value}</div>
@@ -95,10 +105,10 @@ export default function ExecutiveOverview() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', justifyItems: 'center' }}>
             <GaugeChart value={87.4} label="Task Completion" color="#00f0ff" size={130} />
             <GaugeChart value={84.2} label="Agent Satisfaction" color="#bf5af2" size={130} />
-            <GaugeChart value={61.5} label="Green Zone %" color="#6bcb77" size={130} />
+            <GaugeChart value={parseFloat(applyFilter(61.5, 'greenZone', f).toFixed(1))} label="Green Zone %" color="#6bcb77" size={130} />
             <GaugeChart value={93.2} label="Routing Accuracy" color="#ccff00" size={130} />
-            <GaugeChart value={79} label="D1 Retention" color="#ff8e53" size={130} />
-            <GaugeChart value={75.4} label="Onboarding %" color="#4d96ff" size={130} />
+            <GaugeChart value={applyFilter(79, 'd1Retention', f)} label="D1 Retention" color="#ff8e53" size={130} />
+            <GaugeChart value={parseFloat(applyFilter(75.4, 'completionRate', f).toFixed(1))} label="Onboarding %" color="#4d96ff" size={130} />
           </div>
         </div>
       </div>
@@ -109,12 +119,19 @@ export default function ExecutiveOverview() {
           <div className="card-header">
             <h3 className="card-title">Financial Zone Distribution</h3>
           </div>
-          <DonutChart data={financialHealth.zoneDistribution.map(z => ({ ...z, value: z.pct }))}
-            size={180} centerValue={`${financialHealth.kpis.greenZonePct}%`} centerLabel="Green Zone" />
+          <DonutChart data={[
+            { zone: 'Green', color: '#6bcb77', value: applyFilter(61.5, 'greenZone', f) },
+            { zone: 'Yellow', color: '#ffd93d', value: applyFilter(25.0, 'yellowZone', f) },
+            { zone: 'Red', color: '#ff4757', value: applyFilter(13.5, 'redZone', f) },
+          ]} size={180} centerValue={`${applyFilter(61.5, 'greenZone', f).toFixed(0)}%`} centerLabel="Green Zone" />
           <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '12px' }}>
-            {financialHealth.zoneDistribution.map((z, i) => (
+            {[
+              { zone: 'Green', pct: applyFilter(61.5, 'greenZone', f), color: '#6bcb77' },
+              { zone: 'Yellow', pct: applyFilter(25.0, 'yellowZone', f), color: '#ffd93d' },
+              { zone: 'Red', pct: applyFilter(13.5, 'redZone', f), color: '#ff4757' },
+            ].map((z, i) => (
               <div key={i} style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '1.1rem', fontWeight: 700, color: z.color }}>{z.pct}%</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: 700, color: z.color }}>{z.pct.toFixed(1)}%</div>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{z.zone}</div>
               </div>
             ))}
@@ -166,7 +183,11 @@ export default function ExecutiveOverview() {
               <p className="card-subtitle">12-month rolling view</p>
             </div>
           </div>
-          <LineChart data={engagement.monthly} height={220}
+          <LineChart data={engagement.monthly.map(m => ({
+            ...m,
+            dau: applyFilter(m.dau, 'dau', f),
+            mau: applyFilter(m.mau, 'mau', f),
+          }))} height={220}
             lines={[
               { key: 'dau', label: 'DAU', color: '#00f0ff' },
               { key: 'mau', label: 'MAU', color: '#bf5af2' },

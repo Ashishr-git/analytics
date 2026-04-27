@@ -1,8 +1,12 @@
 import React from 'react';
 import { AnimatedNumber, Sparkline, DonutChart, LineChart, BarChart, GaugeChart } from '../components/charts';
+import MetricTooltip from '../components/MetricTooltip';
+import { isFilterActive } from '../data/demographicData';
 import { costMetrics } from '../data/agentMetrics';
 
-export default function CostEfficiency() {
+export default function CostEfficiency({ filters }) {
+  const filtered = isFilterActive(filters);
+
   return (
     <div>
       <div className="page-header">
@@ -12,19 +16,26 @@ export default function CostEfficiency() {
         </div>
       </div>
 
+      {filtered && (
+        <div className="demo-filter-system-note">
+          <span style={{ fontSize: '1.2rem' }}>ℹ️</span>
+          <span><strong>System-level metrics:</strong> Cost & Efficiency metrics do not vary by demographic slice. Displaying overall system data.</span>
+        </div>
+      )}
+
       {/* KPIs */}
       <div className="kpi-grid">
         {[
-          { label: 'Monthly Cost', value: costMetrics.kpis.totalCost, prefix: '$', suffix: '', icon: '💵', color: '#00f0ff', bg: 'rgba(0,240,255,0.1)', spark: costMetrics.monthly.map(m => m.totalCost) },
-          { label: 'Cost per Conversation', value: costMetrics.kpis.costPerConversation * 100, prefix: '$0.0', suffix: '', icon: '💬', color: '#ccff00', bg: 'rgba(204,255,0,0.1)', spark: costMetrics.monthly.map(m => m.costPerConversation * 100) },
-          { label: 'Budget Utilization', value: costMetrics.kpis.budgetUtilization, prefix: '', suffix: '%', icon: '📊', color: '#bf5af2', bg: 'rgba(191,90,242,0.1)' },
-          { label: 'Cache Hit Rate', value: costMetrics.kpis.cacheHitRate, prefix: '', suffix: '%', icon: '⚡', color: '#6bcb77', bg: 'rgba(107,203,119,0.1)', spark: costMetrics.monthly.map(m => m.cacheHitRate) },
+          { label: 'Monthly Cost', metricKey: 'totalCost', value: costMetrics.kpis.totalCost, prefix: '$', suffix: '', icon: '💵', color: '#00f0ff', bg: 'rgba(0,240,255,0.1)', spark: costMetrics.monthly.map(m => m.totalCost) },
+          { label: 'Cost per Conversation', metricKey: 'costPerConversation', value: costMetrics.kpis.costPerConversation * 100, prefix: '$0.0', suffix: '', icon: '💬', color: '#ccff00', bg: 'rgba(204,255,0,0.1)', spark: costMetrics.monthly.map(m => m.costPerConversation * 100) },
+          { label: 'Budget Utilization', metricKey: 'budgetUtilization', value: costMetrics.kpis.budgetUtilization, prefix: '', suffix: '%', icon: '📊', color: '#bf5af2', bg: 'rgba(191,90,242,0.1)' },
+          { label: 'Cache Hit Rate', metricKey: 'cacheHitRate', value: costMetrics.kpis.cacheHitRate, prefix: '', suffix: '%', icon: '⚡', color: '#6bcb77', bg: 'rgba(107,203,119,0.1)', spark: costMetrics.monthly.map(m => m.cacheHitRate) },
         ].map((kpi, i) => (
           <div key={i} className={`kpi-card glass-panel animate-in animate-in-delay-${i + 1}`}>
             <div className="kpi-card-header">
               <div className="kpi-icon" style={{ background: kpi.bg }}>{kpi.icon}</div>
             </div>
-            <span className="kpi-label">{kpi.label}</span>
+            <span className="kpi-label"><MetricTooltip metricKey={kpi.metricKey}>{kpi.label}</MetricTooltip></span>
             <span className="kpi-value" style={{ color: kpi.color }}>
               {kpi.label === 'Cost per Conversation' ? (
                 <span>${costMetrics.kpis.costPerConversation.toFixed(3)}</span>
@@ -97,13 +108,13 @@ export default function CostEfficiency() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             {[
-              { label: 'Cost per User/Mo', value: `$${costMetrics.kpis.costPerUser}`, target: '< $1.50', met: costMetrics.kpis.costPerUser < 1.5 },
-              { label: 'Cost per Resolved', value: `$${costMetrics.kpis.costPerResolvedQuery}`, target: '< $0.08', met: costMetrics.kpis.costPerResolvedQuery < 0.08 },
-              { label: 'Model Calls/Query', value: costMetrics.kpis.modelCallEfficiency, target: '< 3', met: costMetrics.kpis.modelCallEfficiency < 3 },
-              { label: 'Cache Hit Rate', value: `${costMetrics.kpis.cacheHitRate}%`, target: '> 15%', met: costMetrics.kpis.cacheHitRate > 15 },
+              { label: 'Cost per User/Mo', metricKey: 'costPerUser', value: `$${costMetrics.kpis.costPerUser}`, target: '< $1.50', met: costMetrics.kpis.costPerUser < 1.5 },
+              { label: 'Cost per Resolved', metricKey: 'costPerResolvedQuery', value: `$${costMetrics.kpis.costPerResolvedQuery}`, target: '< $0.08', met: costMetrics.kpis.costPerResolvedQuery < 0.08 },
+              { label: 'Model Calls/Query', metricKey: 'modelCallEfficiency', value: costMetrics.kpis.modelCallEfficiency, target: '< 3', met: costMetrics.kpis.modelCallEfficiency < 3 },
+              { label: 'Cache Hit Rate', metricKey: 'cacheHitRate', value: `${costMetrics.kpis.cacheHitRate}%`, target: '> 15%', met: costMetrics.kpis.cacheHitRate > 15 },
             ].map((item, i) => (
               <div key={i} style={{ padding: '14px', background: 'rgba(255,255,255,0.02)', borderRadius: 'var(--radius-md)' }}>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{item.label}</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}><MetricTooltip metricKey={item.metricKey}>{item.label}</MetricTooltip></div>
                 <div style={{ fontSize: '1.3rem', fontWeight: 700, marginTop: '4px' }}>{item.value}</div>
                 <div style={{ fontSize: '0.65rem', color: item.met ? 'var(--accent-green)' : 'var(--accent-red)' }}>
                   {item.met ? '✓' : '✗'} Target: {item.target}
